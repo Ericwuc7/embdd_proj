@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Embedded Security Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    ul { max-height: 300px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <h1>Embedded Security Dashboard</h1>
+  <div class="card">
+    <div><b>Last Serial Event:</b> <span id="serial">-</span></div>
+    <div><b>Last Human Count:</b> <span id="humans">0</span></div>
+    <div><b>Last Alert Time:</b> <span id="alert">-</span></div>
+  </div>
+  <div class="card">
+    <b>Recent Events</b>
+    <ul id="events"></ul>
+  </div>
+
+  <script>
+    async function refresh() {
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      document.getElementById('serial').textContent = data.last_serial_event || '-';
+      document.getElementById('humans').textContent = data.last_human_count ?? 0;
+      document.getElementById('alert').textContent = data.last_alert_time || '-';
+
+      const events = document.getElementById('events');
+      events.innerHTML = '';
+      (data.events || []).forEach((e) => {
+        const li = document.createElement('li');
+        li.textContent = e;
+        events.appendChild(li);
+      });
+    }
+    refresh();
+    setInterval(refresh, 2000);
+  </script>
+</body>
+</html>
